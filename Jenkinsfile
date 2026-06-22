@@ -15,14 +15,17 @@ pipeline {
         
         stage('Maven Build') {
             steps {
-                echo 'Checking Maven and Java versions...'
-                sh 'mvn --version'
-                
-                // Let's prove the actual compiler matches!
-                sh 'javac -version' 
-                
                 echo 'Building the application with Maven...'
                 sh 'mvn clean package -DskipTests=true'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo 'Running SonarQube Static Code Analysis...'
+                withSonarQubeEnv('sonar-server') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=spring-petclinic -Dsonar.projectName=spring-petclinic'
+                }
             }
         }
     }
